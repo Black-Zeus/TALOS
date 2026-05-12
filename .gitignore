@@ -1,0 +1,9 @@
+.env
+.env.*
+!.env.example
+logs/
+tmp/
+*.bak
+volumes/*
+!volumes/php/
+!volumes/php/**
