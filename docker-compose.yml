@@ -1,15 +1,17 @@
 services:
   php:
-    image: php:8.2-apache
+    build:
+      context: ../iTop/docker/php
+    image: itop-php:8.2-apache
     container_name: talos_php
     restart: unless-stopped
     environment:
       TZ: ${TZ}
       TALOS_APP_ROOT_URL: ${TALOS_APP_ROOT_URL}
       MYSQL_HOST: mysql
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MARIADB_DATABASE}
+      MYSQL_USER: ${MARIADB_USER}
+      MYSQL_PASSWORD: ${MARIADB_PASSWORD}
     ports:
       - "${TALOS_HTTP_PORT:-8084}:80"
     volumes:
@@ -24,30 +26,30 @@ services:
     pids_limit: ${PHP_PIDS_LIMIT:-128}
 
   mysql:
-    image: mysql:8.4
+    image: mariadb:11.4
     container_name: talos_mysql
     restart: unless-stopped
     environment:
       TZ: ${TZ}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
     ports:
-      - "${MYSQL_EXTERNAL_PORT:-3308}:3306"
+      - "${MARIADB_EXTERNAL_PORT:-3308}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
       - talos_net
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p\"$${MYSQL_ROOT_PASSWORD}\" --silent"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p\"$${MARIADB_ROOT_PASSWORD}\" --silent"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 30s
-    mem_limit: ${MYSQL_MEM_LIMIT:-1g}
-    cpus: ${MYSQL_CPUS:-1.0}
-    pids_limit: ${MYSQL_PIDS_LIMIT:-256}
+    mem_limit: ${MARIADB_MEM_LIMIT:-1g}
+    cpus: ${MARIADB_CPUS:-1.0}
+    pids_limit: ${MARIADB_PIDS_LIMIT:-256}
 
 networks:
   talos_net:
